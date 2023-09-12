@@ -3,9 +3,9 @@
 #include <WiFiClient.h>
 #include <BlynkSimpleEsp32.h>
 
-char ssid[] = "smf001";      //ชื่อ SSID ที่เราต้องการเชื่อมต่อ
-char pass[] = "0814111142";  //รหัสผ่าน WI-FI
-char auth[] = "3tSp-WIc5bJpwZ_A5EnRpdy_bUF_usEU";            //Auth token from blynk app
+char ssid[] = "";      //ชื่อ SSID ที่เราต้องการเชื่อมต่อ
+char pass[] = "";  //รหัสผ่าน WI-FI
+char auth[] = "";            //Auth token from blynk app
 
 #include <SimpleTimer.h>
 SimpleTimer timer;
