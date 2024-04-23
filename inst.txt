@@ -1,0 +1,179 @@
+Blynk Local server on Debian & Raspbian
+
+# sudo apt-get update
+# sudo apt-get install wget
+Install dependencies
+# mkdir blynk-local
+# cd blynk-local
+# apt show default-jdk
+# apt-get install default-jdk -y
+# java –version
+# wget https://github.com/Peterkn2001/blynk-server/releases/download/v0.41.17/server-0.41.17.jar
+
+Start blynk server
+# java -jar /root/blynk-local/server-0.41.17.jar -dataFolder /root/blynk-local/Blynk
+
+Blynk Server 0.41.18-SNAPSHOT successfully started.
+All server output is stored in folder '/root/blynk-local/logs' file.
+Admin password not specified. Random password generated.
+Your Admin url is https://ip-blynk-local:9443/admin
+Your Admin login email is admin@blynk.cc
+Your Admin password is xxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+เปิดเว็บบราวเซอร์ เรียกหน้า Blynk 
+https://ip-blynk-local:9443
+
+user : admin@blynk.cc
+password : xxxxxxxxxxxxxxxxxxxxxxxxxxx (ที่ปรากฏบน Shell)
+
+เข้าหน้าเว็บ Blynk Admin ทำการตั้งค่า user, password ใหม่ 
+
+
+เสร็จแล้วกด Ctrl+C เพื่อออกจาก Blynk
+
+
+ทำให้ Start พร้อมเปิดเครื่อง
+crontab -e (เลือก option nano editor)
+เพิ่มข้อมูลเข้าไปที่บรรทัดล่างสุด
+
+@reboot java -jar /root/blynk-local/server-0.41.17.jar -dataFolder /root/blynk-local/Blynk &
+
+กด CTRL + O กด Enter เพื่อเขียนไฟล์ 
+กด CTRL + X เพื่อออกจาก nano
+#
+เช็คหมายเลขพอร์ตของ Blynk-local
+9443 tcp/ Mobile App port
+8080 tcp/ Hardware connect
+
+# netstat -na | grep tcp
+tcp6       0      0 :::22                   :::*                    LISTEN
+tcp6       0      0 :::8440                 :::*                    LISTEN
+tcp6       0      0 :::9443                 :::*                    LISTEN
+#
+
+
+Enabling raw data storage
+By default raw data storage is disabled (as it consumes disk space a lot). When you enable it, every Blynk.virtualWrite command will be saved to DB. You will need to install PostgreSQL Database (minimum required version is 9.5) to enable this functionality:
+
+1. Enabling raw data on server
+1. 1 สร้างไฟล์  server.properties
+ที่ web Blynk Adminstration ให้ไปที่ Config > server.properties
+ทำการคัดลอกไฟล์ config ของ server.properties ทั้งหมดเก็บไว้
+
+# sudo nano server.properties
+เพิ่ม 
+web.request.max.size=524288
+user.tags.limit=100
+net.interface=eth
+force.port.80.for.redirect=true
+user.devices.limit=50
+notifications.frequency.user.quota.limit=5
+user.profile.max.size=256
+profile.save.worker.period=60000
+data.folder=/root/blynk-local/Blynk
+server.ssl.cert=
+user.message.quota.limit=100
+enable.raw.db.data.store=false
+enable.db=false
+user.widget.max.size.limit=20
+allow.reading.widget.without.active.app=false
+stats.print.worker.period=60000
+log.level=info
+restore.host=blynk-cloud.com
+lcd.strings.pool.size=6
+hardware.mqtt.port=8440
+admin.pass=
+listen.address=
+allowed.administrator.ips=0.0.0.0/0,::/0
+http.port=8080
+restore=false
+server.ssl.key=
+admin.rootPath=/admin
+product.name=Blynk
+csv.export.data.points.max=43200
+allow.store.ip=true
+force.port.80.for.csv=false
+hard.socket.idle.timeout=10
+async.logger.ring.buffer.size=2048
+https.port=9443
+logs.folder=./logs
+webhooks.frequency.user.quota.limit=1000
+initial.energy=100000
+blocking.processor.thread.pool.limit=6
+map.strings.pool.size=25
+table.rows.pool.size=100
+admin.email=admin@blynk.cc
+server.ssl.key.pass=
+user.dashboard.max.limit=100
+webhooks.response.size.limit=96
+terminal.strings.pool.size=25
+notifications.queue.limit=2000
+
+และแก้ไขตรง enable.raw.db.data.store=false และ enable.db=false ให้เป็น true
+
+enable.raw.db.data.store=true
+enable.db=true
+กด CTRL + O กด Enter เพื่อเขียนไฟล์ 
+กด CTRL + X เพื่อออกจาก nano
+  
+#
+
+2. Install PostgreSQL
+# sudo apt-get update
+# sudo apt-get install postgresql postgresql-contrib
+
+3. Download Blynk DB script
+# wget https://raw.githubusercontent.com/Peterkn2001/blynk-server/master/server/core/src/main/resources/create_schema.sql
+# wget https://raw.githubusercontent.com/Peterkn2001/blynk-server/master/server/core/src/main/resources/reporting_schema.sql 
+
+4. Move create_schema.sql and reporting_schema.sql to temp folder (to avoid permission problems)
+# mv create_schema.sql /tmp
+# mv reporting_schema.sql /tmp
+Result:
+
+/tmp/create_schema.sql
+/tmp/reporting_schema.sql
+
+Copy it to clipboard from your console.
+
+5. Connect to PostgreSQL
+# sudo su - postgres
+$ psql
+6. Create Blynk DB and Reporting DB, test user and tables
+postgres=# \i /tmp/create_schema.sql
+blynk=#  \i /tmp/reporting_schema.sql
+
+/tmp/create_schema.sql - is path from step 4.
+
+You should see next output:
+
+    postgres=# \i /tmp/create_schema.sql
+    CREATE DATABASE
+    You are now connected to database "blynk" as user "postgres".
+    CREATE TABLE
+    CREATE TABLE
+    CREATE TABLE
+    CREATE TABLE
+    CREATE TABLE
+    CREATE TABLE
+    CREATE TABLE
+    CREATE TABLE
+    CREATE TABLE
+    CREATE TABLE
+    CREATE TABLE
+    CREATE ROLE
+    GRANT
+    GRANT
+Quit
+    \q
+Now start your server and you should see next text in postgres.log file :
+
+    2017-03-02 16:17:18.367 - DB url : jdbc:postgresql://localhost:5432/blynk?tcpKeepAlive=true&socketTimeout=150
+    2017-03-02 16:17:18.367 - DB user : test
+    2017-03-02 16:17:18.367 - Connecting to DB...
+    2017-03-02 16:17:18.455 - Connected to database successfully.
+WARNING: Raw data may consume your disk space very quickly!
+
+
+
