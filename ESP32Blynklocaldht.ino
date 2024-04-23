@@ -1,7 +1,7 @@
 #define BLYNK_PRINT Serial
 #include <WiFi.h>
 #include <WiFiClient.h>
-#include <BlynkSimpleEsp32.h>
+#include <BlynkSimpleEsp32.h>  //Blynk library ใช้ version 0.6.0
 
 char ssid[] = "";      //ชื่อ SSID ที่เราต้องการเชื่อมต่อ
 char pass[] = "";  //รหัสผ่าน WI-FI
@@ -44,8 +44,7 @@ void setup() {
 
   //Connect to Blynk Server
   //Blynk.begin(auth, ssid, pass, "192.168.1.135", 8080);
-  Blynk.begin(auth, ssid, pass, "ip blynk server", hw-port);
-  timer.setInterval(1000L, dht);
+  timer.setInterval(1000L, dhtsensor);
 }
 
 void loop() {
@@ -54,7 +53,7 @@ void loop() {
 }
 
 //DHT
-void dht() {
+void dhtsensor() {
  float h = dht.readHumidity();
   float t = dht.readTemperature();      // Read temperature as Celsius (the default)
   float f = dht.readTemperature(true);  // Read temperature as Fahrenheit (isFahrenheit = true)
