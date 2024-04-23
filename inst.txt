@@ -1,7 +1,7 @@
 Blynk Local server on Debian & Raspbian
 
-# sudo apt-get update
-# sudo apt-get install wget
+# apt-get update หรือ normal user  $ sudo apt-get update
+# apt-get install wget หรือ sudo apt-get install wget
 Install dependencies
 # mkdir blynk-local
 # cd blynk-local
