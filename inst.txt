@@ -45,7 +45,7 @@ password : xxxxxxxxxxxxxxxxxxxxxxxxxxx (ที่ปรากฏบน Shell)
 เช็คหมายเลขพอร์ตของ Blynk-local
 9443 tcp/ Mobile App port
 8080 tcp/ Hardware connect
-
+#apt-get install net-tools -y
 # netstat -na | grep tcp
 tcp6       0      0 :::22                   :::*                    LISTEN
 tcp6       0      0 :::8440                 :::*                    LISTEN
