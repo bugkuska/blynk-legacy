@@ -7,7 +7,7 @@ Install dependencies
 # cd blynk-local
 # apt show default-jdk
 # apt-get install default-jdk -y
-# java –version
+# java --version
 # wget https://github.com/Peterkn2001/blynk-server/releases/download/v0.41.17/server-0.41.17.jar
 
 Start blynk server
