@@ -1,17 +1,17 @@
 Blynk Local server on Debian & Raspbian
 
-# apt-get update หรือ normal user  $ sudo apt-get update
-# apt-get install wget หรือ sudo apt-get install wget
+#apt-get update หรือ normal user  $ sudo apt-get update
+#apt-get install wget หรือ sudo apt-get install wget
 Install dependencies
-# mkdir blynk-local
-# cd blynk-local
-# apt show default-jdk
-# apt-get install default-jdk -y
-# java --version
-# wget https://github.com/Peterkn2001/blynk-server/releases/download/v0.41.17/server-0.41.17.jar
+#mkdir blynk-local
+#cd blynk-local
+#apt show default-jdk
+#apt-get install default-jdk -y
+#java --version
+#wget https://github.com/Peterkn2001/blynk-server/releases/download/v0.41.17/server-0.41.17.jar
 
 Start blynk server
-# java -jar /root/blynk-local/server-0.41.17.jar -dataFolder /root/blynk-local/Blynk
+#java -jar /root/blynk-local/server-0.41.17.jar -dataFolder /root/blynk-local/Blynk
 
 Blynk Server 0.41.18-SNAPSHOT successfully started.
 All server output is stored in folder '/root/blynk-local/logs' file.
@@ -42,16 +42,17 @@ password : xxxxxxxxxxxxxxxxxxxxxxxxxxx (ที่ปรากฏบน Shell)
 กด CTRL + O กด Enter เพื่อเขียนไฟล์ 
 กด CTRL + X เพื่อออกจาก nano
 #
+
 เช็คหมายเลขพอร์ตของ Blynk-local
 9443 tcp/ Mobile App port
 8080 tcp/ Hardware connect
+
 #apt-get install net-tools -y
-# netstat -na | grep tcp
+#netstat -na | grep tcp
 tcp6       0      0 :::22                   :::*                    LISTEN
 tcp6       0      0 :::8440                 :::*                    LISTEN
 tcp6       0      0 :::9443                 :::*                    LISTEN
 #
-
 
 Enabling raw data storage
 By default raw data storage is disabled (as it consumes disk space a lot). When you enable it, every Blynk.virtualWrite command will be saved to DB. You will need to install PostgreSQL Database (minimum required version is 9.5) to enable this functionality:
@@ -61,7 +62,7 @@ By default raw data storage is disabled (as it consumes disk space a lot). When 
 ที่ web Blynk Adminstration ให้ไปที่ Config > server.properties
 ทำการคัดลอกไฟล์ config ของ server.properties ทั้งหมดเก็บไว้
 
-# sudo nano server.properties
+#nano server.properties
 เพิ่ม 
 web.request.max.size=524288
 user.tags.limit=100
@@ -120,16 +121,16 @@ enable.db=true
 #
 
 2. Install PostgreSQL
-# sudo apt-get update
-# sudo apt-get install postgresql postgresql-contrib
+#apt-get update
+#apt-get install postgresql postgresql-contrib
 
 3. Download Blynk DB script
-# wget https://raw.githubusercontent.com/Peterkn2001/blynk-server/master/server/core/src/main/resources/create_schema.sql
-# wget https://raw.githubusercontent.com/Peterkn2001/blynk-server/master/server/core/src/main/resources/reporting_schema.sql 
+#wget https://raw.githubusercontent.com/Peterkn2001/blynk-server/master/server/core/src/main/resources/create_schema.sql
+#wget https://raw.githubusercontent.com/Peterkn2001/blynk-server/master/server/core/src/main/resources/reporting_schema.sql 
 
 4. Move create_schema.sql and reporting_schema.sql to temp folder (to avoid permission problems)
-# mv create_schema.sql /tmp
-# mv reporting_schema.sql /tmp
+#mv create_schema.sql /tmp
+#mv reporting_schema.sql /tmp
 Result:
 
 /tmp/create_schema.sql
@@ -138,7 +139,7 @@ Result:
 Copy it to clipboard from your console.
 
 5. Connect to PostgreSQL
-# sudo su - postgres
+#su - postgres
 $ psql
 6. Create Blynk DB and Reporting DB, test user and tables
 postgres=# \i /tmp/create_schema.sql
