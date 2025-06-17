@@ -34,7 +34,7 @@ password : xxxxxxxxxxxxxxxxxxxxxxxxxxx (ที่ปรากฏบน Shell)
 
 
 ทำให้ Start พร้อมเปิดเครื่อง
-crontab -e (เลือก option nano editor)
+#crontab -e (เลือก option nano editor)
 เพิ่มข้อมูลเข้าไปที่บรรทัดล่างสุด
 
 @reboot java -jar /root/blynk-local/server-0.41.17.jar -dataFolder /root/blynk-local/Blynk &
