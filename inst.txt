@@ -170,6 +170,10 @@ Quit
     \q
 Now start your server and you should see next text in postgres.log file :
 
+แก้ไข crontab
+@reboot java -jar /root/blynk-local/server-0.41.17.jar -dataFolder /root/blynk-local/Blynk -serverConfig /root/blynk-local/server.properties &
+
+#
     2017-03-02 16:17:18.367 - DB url : jdbc:postgresql://localhost:5432/blynk?tcpKeepAlive=true&socketTimeout=150
     2017-03-02 16:17:18.367 - DB user : test
     2017-03-02 16:17:18.367 - Connecting to DB...
