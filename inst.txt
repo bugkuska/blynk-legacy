@@ -54,15 +54,39 @@ tcp6       0      0 :::8440                 :::*                    LISTEN
 tcp6       0      0 :::9443                 :::*                    LISTEN
 #
 
-Enabling raw data storage
-By default raw data storage is disabled (as it consumes disk space a lot). When you enable it, every Blynk.virtualWrite command will be saved to DB. You will need to install PostgreSQL Database (minimum required version is 9.5) to enable this functionality:
+Blynk Server เก็บข้อมูล ลงในฐานข้อมูล PostgreSQL
+1. ติดตั้ง PostgreSQL
+#apt update
+#apt install postgresql postgresql-contrib -y
 
-1. Enabling raw data on server
-1. 1 สร้างไฟล์  server.properties
-ที่ web Blynk Adminstration ให้ไปที่ Config > server.properties
-ทำการคัดลอกไฟล์ config ของ server.properties ทั้งหมดเก็บไว้
+2. สร้างฐานข้อมูล blynk และ user
+su - postgres
+psql
+ภายใน PostgreSQL shell:
+CREATE DATABASE blynk;
+CREATE USER blynkuser WITH ENCRYPTED PASSWORD 'yourpassword'; //อย่าลืมเปลี่ยน yourpassword
+GRANT ALL PRIVILEGES ON DATABASE blynk TO blynkuser;
+\q
+exit
 
-#nano server.properties
+3. สร้างตารางเก็บ Raw Data (reporting.record) ใน DB blynk
+su - postgres -c "psql -d blynk"
+ภายใน PostgreSQL shell:
+CREATE SCHEMA IF NOT EXISTS reporting;
+
+CREATE TABLE IF NOT EXISTS reporting.record (
+    id BIGSERIAL PRIMARY KEY,
+    date TIMESTAMP NOT NULL,
+    device VARCHAR(64) NOT NULL,
+    tag VARCHAR(64),
+    pin VARCHAR(32) NOT NULL,
+    value DOUBLE PRECISION,
+    ts BIGINT
+);
+\q
+
+4. แก้ไฟล์ server.properties ของ Blynk
+#nano /root/blynk-local/server.properties
 เพิ่ม 
 web.request.max.size=524288
 user.tags.limit=100
@@ -75,8 +99,13 @@ profile.save.worker.period=60000
 data.folder=/root/blynk-local/Blynk
 server.ssl.cert=
 user.message.quota.limit=100
-enable.raw.db.data.store=false
-enable.db=false
+
+enable.raw.db.data.store=true
+enable.db=true
+db.url=jdbc:postgresql://localhost:5432/blynk
+db.user=blynkuser
+db.password=yourpassword
+
 user.widget.max.size.limit=20
 allow.reading.widget.without.active.app=false
 stats.print.worker.period=60000
@@ -119,66 +148,23 @@ enable.db=true
 กด CTRL + X เพื่อออกจาก nano
   
 #
+5. รีสตาร์ท Blynk Server
+#pkill -f server.jar
+#nohup java -jar /root/blynk-local/server-0.41.17.jar -dataFolder /root/blynk-local/Blynk -serverConfig /root/blynk-local/server.properties &
 
-2. Install PostgreSQL
-#apt-get update
-#apt-get install postgresql postgresql-contrib
+6. ทดสอบการส่งข้อมูล
+ในโค้ด Arduino (ESP32, ESP8266):
+Blynk.virtualWrite(V1, 25.6);  // ตัวอย่างส่งค่าไปยัง V1
+หรือใช้ Widget จาก Blynk App ส่งค่าไปยัง V-Pin เช่น V1
 
-3. Download Blynk DB script
-#wget https://raw.githubusercontent.com/Peterkn2001/blynk-server/master/server/core/src/main/resources/create_schema.sql
-#wget https://raw.githubusercontent.com/Peterkn2001/blynk-server/master/server/core/src/main/resources/reporting_schema.sql 
-
-4. Move create_schema.sql and reporting_schema.sql to temp folder (to avoid permission problems)
-#mv create_schema.sql /tmp
-#mv reporting_schema.sql /tmp
-Result:
-
-/tmp/create_schema.sql
-/tmp/reporting_schema.sql
-
-Copy it to clipboard from your console.
-
-5. Connect to PostgreSQL
-#su - postgres
-$ psql
-6. Create Blynk DB and Reporting DB, test user and tables
-postgres=# \i /tmp/create_schema.sql
-blynk=#  \i /tmp/reporting_schema.sql
-
-/tmp/create_schema.sql - is path from step 4.
-
-You should see next output:
-
-    postgres=# \i /tmp/create_schema.sql
-    CREATE DATABASE
-    You are now connected to database "blynk" as user "postgres".
-    CREATE TABLE
-    CREATE TABLE
-    CREATE TABLE
-    CREATE TABLE
-    CREATE TABLE
-    CREATE TABLE
-    CREATE TABLE
-    CREATE TABLE
-    CREATE TABLE
-    CREATE TABLE
-    CREATE TABLE
-    CREATE ROLE
-    GRANT
-    GRANT
-Quit
-    \q
-Now start your server and you should see next text in postgres.log file :
+7. ตรวจสอบข้อมูลใน PostgreSQL
+su - postgres -c "psql -d blynk"
+ภายใน shell:
+SELECT COUNT(*) FROM reporting.record;
+SELECT * FROM reporting.record ORDER BY id DESC LIMIT 5;
+\q
 
 แก้ไข crontab
 @reboot java -jar /root/blynk-local/server-0.41.17.jar -dataFolder /root/blynk-local/Blynk -serverConfig /root/blynk-local/server.properties &
 
-#
-    2017-03-02 16:17:18.367 - DB url : jdbc:postgresql://localhost:5432/blynk?tcpKeepAlive=true&socketTimeout=150
-    2017-03-02 16:17:18.367 - DB user : test
-    2017-03-02 16:17:18.367 - Connecting to DB...
-    2017-03-02 16:17:18.455 - Connected to database successfully.
-WARNING: Raw data may consume your disk space very quickly!
-
-
-
+#reboot
